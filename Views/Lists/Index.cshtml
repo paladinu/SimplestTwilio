@@ -1,0 +1,64 @@
+﻿@model SimplestTwilio.Models.RecipientListsViewModel
+
+@{
+    ViewData["Title"] = "Recipient Lists";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Recipient Lists</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New List
+        </a>
+    </div>
+
+    @if (Model.Lists == null || !Model.Lists.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No recipient lists found. Create your first list to get started!
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>List Name</th>
+                        <th>Contacts</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var list in Model.Lists)
+                    {
+                        <tr>
+                            <td>@list.Name</td>
+                            <td>
+                                <span class="badge bg-secondary">@list.ContactCount</span>
+                            </td>
+                            <td>@list.CreatedDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@list.RecipientListId" 
+                                       class="btn btn-sm btn-info" title="View Details">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@list.RecipientListId" 
+                                       class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@list.RecipientListId" 
+                                       class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

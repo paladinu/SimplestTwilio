@@ -1,0 +1,9 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    @model SimplestTwilio.Models.HomePageViewModel
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    @{ Html.RenderPartial("ListPartial", Model.TopRecipientLists); }
+</div>

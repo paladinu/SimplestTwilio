@@ -1,0 +1,47 @@
+@model SimplestTwilio.Models.Contact
+
+@{
+    ViewData["Title"] = "Add Contact";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1>Add Contact to @ViewBag.ListName</h1>
+            <hr />
+
+            <form asp-action="AddContact" method="post" novalidate>
+                <input type="hidden" asp-for="RecipientListId" />
+                
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label"></label>
+                    <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+1234567890" 
+                           required pattern="^\+?[1-9]\d{1,14}$" maxlength="20" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    <div class="form-text">Enter phone number in E.164 format (e.g., +1234567890)</div>
+                    <div class="invalid-feedback">
+                        Please provide a valid phone number starting with + followed by country code and number.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Optional contact name" maxlength="100" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="form-text">Optional: Add a name to identify this contact</div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-person-plus"></i> Add Contact
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.RecipientListId" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
