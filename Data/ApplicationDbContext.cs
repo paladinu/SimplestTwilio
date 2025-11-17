@@ -24,7 +24,6 @@ public class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.RecipientListId);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("GETDATE()");
 
             // Relationship with Contact
             entity.HasMany(e => e.Contacts)
@@ -39,7 +38,6 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.ContactId);
             entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("GETDATE()");
         });
     }
 }

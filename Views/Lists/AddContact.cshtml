@@ -10,20 +10,25 @@
             <h1>Add Contact to @ViewBag.ListName</h1>
             <hr />
 
-            <form asp-action="AddContact" method="post" novalidate>
+            <form asp-action="AddContact" method="post">
                 <input type="hidden" asp-for="RecipientListId" />
                 
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                }
+                
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger"></div>
+                }
 
                 <div class="mb-3">
                     <label asp-for="PhoneNumber" class="form-label"></label>
                     <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+1234567890" 
-                           required pattern="^\+?[1-9]\d{1,14}$" maxlength="20" />
+                           required pattern="^\+[1-9]\d{1,14}$" maxlength="20" />
                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                    <div class="form-text">Enter phone number in E.164 format (e.g., +1234567890)</div>
-                    <div class="invalid-feedback">
-                        Please provide a valid phone number starting with + followed by country code and number.
-                    </div>
+                    <div class="form-text">Enter phone number in E.164 format starting with + (e.g., +16128895279)</div>
                 </div>
 
                 <div class="mb-3">
@@ -45,3 +50,22 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('AddContact page loaded');
+            console.log('RecipientListId:', $('#RecipientListId').val());
+            
+            $('form').on('submit', function(e) {
+                console.log('Form submitting...');
+                console.log('Phone:', $('#PhoneNumber').val());
+                console.log('Name:', $('#Name').val());
+                console.log('ListId:', $('#RecipientListId').val());
+                
+                // Let the form submit normally
+                return true;
+            });
+        });
+    </script>
+}

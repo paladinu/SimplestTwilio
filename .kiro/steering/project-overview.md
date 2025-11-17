@@ -9,7 +9,7 @@ SimplestTwilio is an SMS bulk communications client for managing recipient lists
 ## Tech Stack
 
 - ASP.NET Core 8.0 MVC with C#
-- SQL Server (LocalDB for dev) with EF Core 8.0
+- SQLite with EF Core 8.0
 - Razor Views for UI
 - ASP.NET Core Identity for auth
 - Docker support

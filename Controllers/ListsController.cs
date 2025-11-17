@@ -251,8 +251,14 @@ public class ListsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddContact(Contact model)
     {
+        _logger.LogInformation("AddContact POST called with RecipientListId: {ListId}, Phone: {Phone}, Name: {Name}", 
+            model.RecipientListId, model.PhoneNumber, model.Name);
+
         if (!ModelState.IsValid)
         {
+            _logger.LogWarning("ModelState is invalid. Errors: {Errors}", 
+                string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            
             var list = await _context.RecipientLists.FindAsync(model.RecipientListId);
             if (list != null)
             {
@@ -265,16 +271,20 @@ public class ListsController : Controller
         try
         {
             model.CreatedDate = DateTime.Now;
+            _logger.LogInformation("Adding contact to database...");
             _context.Contacts.Add(model);
-            await _context.SaveChangesAsync();
+            
+            var result = await _context.SaveChangesAsync();
+            _logger.LogInformation("SaveChanges returned: {Result}", result);
 
             TempData["SuccessMessage"] = "Contact added successfully!";
             return RedirectToAction(nameof(Details), new { id = model.RecipientListId });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error adding contact to list ID {ListId}", model.RecipientListId);
-            ModelState.AddModelError("", "An error occurred while adding the contact. Please try again.");
+            _logger.LogError(ex, "Error adding contact to list ID {ListId}. Exception: {Message}", 
+                model.RecipientListId, ex.Message);
+            ModelState.AddModelError("", $"An error occurred while adding the contact: {ex.Message}");
             
             var list = await _context.RecipientLists.FindAsync(model.RecipientListId);
             if (list != null)

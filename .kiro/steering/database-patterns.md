@@ -85,6 +85,7 @@ dotnet ef database update
 ## Connection Strings
 
 - Store in `appsettings.json`
-- LocalDB for dev: `Server=(localdb)\\mssqllocaldb;Database=...`
-- Never commit production credentials
-- Use different strings per environment
+- SQLite: `Data Source=SimplestTwilio.db`
+- Database file created automatically on first run
+- Add `*.db` to `.gitignore` to avoid committing database
+- Use different database files per environment

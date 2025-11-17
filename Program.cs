@@ -14,15 +14,15 @@ public class Program
 
         // Add DbContext
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("SimplestTwilioContext")));
+            options.UseSqlite(builder.Configuration.GetConnectionString("SimplestTwilioContext")));
 
         var app = builder.Build();
 
-        // Ensure database is created
+        // Apply pending migrations
         using (var scope = app.Services.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
         }
 
         // Configure the HTTP request pipeline.

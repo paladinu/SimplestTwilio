@@ -7,8 +7,8 @@ public class Contact
 {
     public int ContactId { get; set; }
 
-    [Required]
-    [Phone]
+    [Required(ErrorMessage = "Phone number is required")]
+    [RegularExpression(@"^\+[1-9]\d{1,14}$", ErrorMessage = "Phone number must be in E.164 format (e.g., +1234567890)")]
     [Display(Name = "Phone Number")]
     public string PhoneNumber { get; set; } = string.Empty;
 
@@ -22,5 +22,5 @@ public class Contact
     public DateTime CreatedDate { get; set; }
 
     // Navigation property
-    public virtual RecipientList RecipientList { get; set; } = null!;
+    public virtual RecipientList? RecipientList { get; set; }
 }

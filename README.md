@@ -13,7 +13,7 @@ A simple SMS bulk communications client built with ASP.NET Core 8.0 MVC that ena
 
 - **Framework**: ASP.NET Core 8.0 MVC
 - **Language**: C# (.NET 8.0)
-- **Database**: SQL Server (LocalDB for development)
+- **Database**: SQLite
 - **ORM**: Entity Framework Core 8.0
 - **SMS Provider**: Twilio API
 - **Frontend**: Razor Views with Bootstrap
@@ -22,7 +22,6 @@ A simple SMS bulk communications client built with ASP.NET Core 8.0 MVC that ena
 ## Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- SQL Server or SQL Server LocalDB
 - [Twilio Account](https://www.twilio.com/) with Account SID, Auth Token, and Phone Number
 
 ## Getting Started
@@ -47,25 +46,9 @@ dotnet user-secrets set "Twilio:PhoneNumber" "your-twilio-phone-number"
 
 For production, use environment variables or Azure Key Vault.
 
-### 3. Update Database Connection String
+### 3. Run the Application
 
-Edit `appsettings.json` if needed to configure your database connection:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=SimplestTwilio;Trusted_Connection=True;MultipleActiveResultSets=true"
-  }
-}
-```
-
-### 4. Apply Database Migrations
-
-```bash
-dotnet ef database update
-```
-
-### 5. Run the Application
+The SQLite database will be created automatically on first run.
 
 ```bash
 dotnet run
