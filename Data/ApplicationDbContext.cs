@@ -39,5 +39,39 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(100);
         });
+
+        // Message configuration
+        builder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.MessageId);
+            entity.Property(e => e.Text).IsRequired().HasMaxLength(1600);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("datetime('now')");
+
+            // Relationship with History
+            entity.HasMany(e => e.Histories)
+                  .WithOne(e => e.Message)
+                  .HasForeignKey(e => e.MessageId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // History configuration
+        builder.Entity<History>(entity =>
+        {
+            entity.HasKey(e => e.HistoryId);
+            entity.Property(e => e.SentDate).HasDefaultValueSql("datetime('now')");
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50).HasDefaultValue("Completed");
+            entity.Property(e => e.ErrorMessage).HasMaxLength(500);
+
+            // Indexes for performance
+            entity.HasIndex(e => e.MessageId);
+            entity.HasIndex(e => e.RecipientListId);
+            entity.HasIndex(e => e.SentDate);
+
+            // Relationship with RecipientList
+            entity.HasOne(e => e.RecipientList)
+                  .WithMany()
+                  .HasForeignKey(e => e.RecipientListId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

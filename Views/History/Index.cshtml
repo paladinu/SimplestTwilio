@@ -1,8 +1,98 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SimplestTwilio.Models.HistoryIndexViewModel
+@{
+    ViewData["Title"] = "Message History";
 }
 
-<div class="text-center">
-    <h1 class="display-4">History</h1>
-    <p>Some history here</p>
+<div class="container mt-4">
+    <h1 class="mb-4">Message History</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Histories.Any())
+    {
+        <div class="alert alert-info text-center py-5" role="alert">
+            <i class="bi bi-clock-history" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">No Message History</h4>
+            <p>You haven't sent any messages yet. Start by creating a message template and sending it to your recipient lists.</p>
+            <a asp-controller="Messages" asp-action="Index" class="btn btn-primary mt-2">Go to Messages</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Sent Date</th>
+                        <th>Message Preview</th>
+                        <th>Recipient List</th>
+                        <th>Recipients</th>
+                        <th>Success</th>
+                        <th>Failed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var history in Model.Histories)
+                    {
+                        <tr>
+                            <td>@history.SentDate.ToString("MMM dd, yyyy HH:mm")</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 300px;" title="@history.MessageText">
+                                    @(history.MessageText.Length > 50 ? history.MessageText.Substring(0, 50) + "..." : history.MessageText)
+                                </div>
+                            </td>
+                            <td>@history.ListName</td>
+                            <td>
+                                <span class="badge bg-secondary">@history.TotalRecipients</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">@history.SuccessfulSends</span>
+                            </td>
+                            <td>
+                                @if (history.FailedSends > 0)
+                                {
+                                    <span class="badge bg-danger">@history.FailedSends</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (history.Status == "Completed")
+                                {
+                                    <span class="badge bg-success">@history.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">@history.Status</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@history.HistoryId" class="btn btn-sm btn-primary" title="View Details">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

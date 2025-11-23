@@ -1,8 +1,95 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SimplestTwilio.Models.MessageIndexViewModel
+@{
+    ViewData["Title"] = "Message Templates";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Messages</h1>
-    <p>Some messages here</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Message Templates</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Message
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.TwilioConfigured)
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Twilio Not Configured:</strong> You need to configure your Twilio credentials before you can send messages.
+            Please set up your Account SID, Auth Token, and Phone Number in user secrets or environment variables.
+        </div>
+    }
+
+    @if (!Model.Messages.Any())
+    {
+        <div class="alert alert-info text-center py-5" role="alert">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">No Message Templates Yet</h4>
+            <p>Create your first message template to get started with SMS messaging.</p>
+            <a asp-action="Create" class="btn btn-primary mt-2">Create Message Template</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Message Preview</th>
+                        <th>Created Date</th>
+                        <th>Times Sent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var message in Model.Messages)
+                    {
+                        <tr>
+                            <td>
+                                <div class="text-truncate" style="max-width: 400px;" title="@message.Text">
+                                    @message.TextPreview
+                                </div>
+                            </td>
+                            <td>@message.CreatedDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span class="badge bg-secondary">@message.TimesSent</span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (Model.TwilioConfigured)
+                                    {
+                                        <a asp-action="Send" asp-route-id="@message.MessageId" class="btn btn-sm btn-success" title="Send">
+                                            <i class="bi bi-send"></i> Send
+                                        </a>
+                                    }
+                                    <a asp-action="Edit" asp-route-id="@message.MessageId" class="btn btn-sm btn-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@message.MessageId" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

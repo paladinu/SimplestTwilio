@@ -1,0 +1,158 @@
+@model SimplestTwilio.Models.History
+@{
+    ViewData["Title"] = "History Details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Message History Details</h1>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Message Content</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@(Model.Message?.Text ?? "[Message Deleted]")</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Send Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Sent Date:</dt>
+                        <dd class="col-sm-8">@Model.SentDate.ToString("MMMM dd, yyyy HH:mm:ss")</dd>
+
+                        <dt class="col-sm-4">Recipient List:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.RecipientList != null)
+                            {
+                                <a asp-controller="Lists" asp-action="Details" asp-route-id="@Model.RecipientListId">
+                                    @Model.RecipientList.Name
+                                </a>
+                            }
+                            else
+                            {
+                                <text>[List Deleted]</text>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Total Recipients:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-secondary">@Model.TotalRecipients</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Successful Sends:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-success">@Model.SuccessfulSends</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Failed Sends:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.FailedSends > 0)
+                            {
+                                <span class="badge bg-danger">@Model.FailedSends</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">0</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Status == "Completed")
+                            {
+                                <span class="badge bg-success">@Model.Status</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">@Model.Status</span>
+                            }
+                        </dd>
+
+                        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                        {
+                            <dt class="col-sm-4">Error Details:</dt>
+                            <dd class="col-sm-8">
+                                <div class="alert alert-danger mb-0">
+                                    @Model.ErrorMessage
+                                </div>
+                            </dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h3 class="text-primary">@Model.TotalRecipients</h3>
+                                <p class="text-muted mb-0">Total Recipients</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h3 class="text-success">@Model.SuccessfulSends</h3>
+                                <p class="text-muted mb-0">Successful</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h3 class="text-danger">@Model.FailedSends</h3>
+                                <p class="text-muted mb-0">Failed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.TotalRecipients > 0)
+                    {
+                        <div class="progress mt-3" style="height: 30px;">
+                            @{
+                                var successPercent = (Model.SuccessfulSends * 100.0 / Model.TotalRecipients);
+                                var failPercent = (Model.FailedSends * 100.0 / Model.TotalRecipients);
+                            }
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @successPercent%" 
+                                 aria-valuenow="@Model.SuccessfulSends" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="@Model.TotalRecipients">
+                                @successPercent.ToString("F1")%
+                            </div>
+                            @if (Model.FailedSends > 0)
+                            {
+                                <div class="progress-bar bg-danger" role="progressbar" 
+                                     style="width: @failPercent%" 
+                                     aria-valuenow="@Model.FailedSends" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="@Model.TotalRecipients">
+                                    @failPercent.ToString("F1")%
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to History
+                </a>
+                @if (Model.Message != null)
+                {
+                    <a asp-controller="Messages" asp-action="Send" asp-route-id="@Model.MessageId" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Send Again
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

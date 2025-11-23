@@ -1,89 +1,81 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SimplestTwilio.Data;
+using SimplestTwilio.Models;
 
-namespace SimplestTwilio.Controllers
+namespace SimplestTwilio.Controllers;
+
+public class HistoryController : Controller
 {
-    public class HistoryController : Controller
+    private readonly ApplicationDbContext _context;
+    private readonly ILogger<HistoryController> _logger;
+
+    public HistoryController(ApplicationDbContext context, ILogger<HistoryController> logger)
     {
-        // GET: History
-        public ActionResult Index()
-        {
-            return View();
-        }
+        _context = context;
+        _logger = logger;
+    }
 
-        // GET: History/Details/5
-        public ActionResult Details(int id)
+    // GET: History
+    public async Task<IActionResult> Index()
+    {
+        try
         {
-            return View();
-        }
+            var histories = await _context.Histories
+                .AsNoTracking()
+                .Include(h => h.Message)
+                .Include(h => h.RecipientList)
+                .OrderByDescending(h => h.SentDate)
+                .ToListAsync();
 
-        // GET: History/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: History/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
+            var viewModel = new HistoryIndexViewModel
             {
-                // TODO: Add insert logic here
+                Histories = histories.Select(h => new HistorySummary
+                {
+                    HistoryId = h.HistoryId,
+                    MessageText = h.Message?.Text ?? "[Deleted Message]",
+                    ListName = h.RecipientList?.Name ?? "[Deleted List]",
+                    SentDate = h.SentDate,
+                    TotalRecipients = h.TotalRecipients,
+                    SuccessfulSends = h.SuccessfulSends,
+                    FailedSends = h.FailedSends,
+                    Status = h.Status
+                }).ToList()
+            };
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return View(viewModel);
         }
-
-        // GET: History/Edit/5
-        public ActionResult Edit(int id)
+        catch (Exception ex)
         {
-            return View();
-        }
-
-        // POST: History/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: History/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: History/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            _logger.LogError(ex, "Error loading history");
+            TempData["ErrorMessage"] = "An error occurred while loading history.";
+            return View(new HistoryIndexViewModel());
         }
     }
+
+    // GET: History/Details/5
+    public async Task<IActionResult> Details(int id)
+    {
+        try
+        {
+            var history = await _context.Histories
+                .Include(h => h.Message)
+                .Include(h => h.RecipientList)
+                .FirstOrDefaultAsync(h => h.HistoryId == id);
+
+            if (history == null)
+            {
+                return NotFound();
+            }
+
+            return View(history);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading history details");
+            TempData["ErrorMessage"] = "An error occurred while loading history details.";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
 }

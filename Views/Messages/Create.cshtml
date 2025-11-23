@@ -1,0 +1,85 @@
+@model SimplestTwilio.Models.Message
+@{
+    ViewData["Title"] = "Create Message Template";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">Create Message Template</h1>
+
+            <form asp-action="Create" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Text" class="form-label">Message Text</label>
+                    <textarea asp-for="Text" class="form-control" rows="6" id="messageText" 
+                              placeholder="Enter your message text..." maxlength="1600"></textarea>
+                    <span asp-validation-for="Text" class="text-danger"></span>
+                    <div class="form-text">
+                        <span id="charCount">0</span> / 1600 characters
+                        <span class="ms-3">SMS Segments: <strong id="segmentCount">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageText = document.getElementById('messageText');
+            const charCount = document.getElementById('charCount');
+            const segmentCount = document.getElementById('segmentCount');
+
+            function updateCounts() {
+                const text = messageText.value;
+                const length = text.length;
+                charCount.textContent = length;
+
+                // Calculate SMS segments
+                const segments = calculateSmsSegments(text);
+                segmentCount.textContent = segments;
+            }
+
+            function calculateSmsSegments(message) {
+                if (!message || message.length === 0) return 0;
+
+                const gsm7Chars = "@@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà";
+                const gsm7Extended = "^{}\\[~]|€";
+
+                let isGsm7 = true;
+                let charCount = 0;
+
+                for (let char of message) {
+                    if (gsm7Chars.includes(char)) {
+                        charCount++;
+                    } else if (gsm7Extended.includes(char)) {
+                        charCount += 2;
+                    } else {
+                        isGsm7 = false;
+                        break;
+                    }
+                }
+
+                if (isGsm7) {
+                    if (charCount <= 160) return 1;
+                    return Math.ceil(charCount / 153);
+                } else {
+                    const unicodeLength = message.length;
+                    if (unicodeLength <= 70) return 1;
+                    return Math.ceil(unicodeLength / 67);
+                }
+            }
+
+            messageText.addEventListener('input', updateCounts);
+            updateCounts();
+        });
+    </script>
+}

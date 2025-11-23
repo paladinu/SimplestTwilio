@@ -1,0 +1,121 @@
+@model SimplestTwilio.Models.SendMessageViewModel
+@{
+    ViewData["Title"] = "Send Message";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Send Message</h1>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Message Preview</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@Model.MessageText</p>
+                </div>
+            </div>
+
+            <form asp-action="SendConfirm" method="post" novalidate>
+                <input type="hidden" asp-for="MessageId" />
+                <input type="hidden" asp-for="MessageText" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-4">
+                    <h5>Select Recipient Lists</h5>
+                    <span asp-validation-for="SelectedListIds" class="text-danger"></span>
+
+                    @if (!Model.AvailableLists.Any())
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            No recipient lists available. Please create a recipient list first.
+                        </div>
+                        <a asp-controller="Lists" asp-action="Create" class="btn btn-primary">Create Recipient List</a>
+                    }
+                    else
+                    {
+                        <div class="list-group">
+                            @for (int i = 0; i < Model.AvailableLists.Count; i++)
+                            {
+                                var list = Model.AvailableLists[i];
+                                <label class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input recipient-list-checkbox" type="checkbox" 
+                                               name="SelectedListIds" value="@list.RecipientListId" 
+                                               id="list_@list.RecipientListId"
+                                               data-contact-count="@list.ContactCount" />
+                                        <label class="form-check-label" for="list_@list.RecipientListId">
+                                            <strong>@list.Name</strong>
+                                        </label>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">@list.ContactCount contacts</span>
+                                </label>
+                            }
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="selectAll">Select All</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="selectNone">Select None</button>
+                        </div>
+
+                        <div class="alert alert-info mt-3" role="alert">
+                            <strong>Total Recipients:</strong> <span id="totalRecipients">0</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    @if (Model.AvailableLists.Any())
+                    {
+                        <button type="submit" class="btn btn-primary">Next: Preview Send</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.recipient-list-checkbox');
+            const totalRecipientsSpan = document.getElementById('totalRecipients');
+            const selectAllBtn = document.getElementById('selectAll');
+            const selectNoneBtn = document.getElementById('selectNone');
+
+            function updateTotalRecipients() {
+                let total = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        total += parseInt(checkbox.dataset.contactCount);
+                    }
+                });
+                totalRecipientsSpan.textContent = total;
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotalRecipients);
+            });
+
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', function() {
+                    checkboxes.forEach(checkbox => checkbox.checked = true);
+                    updateTotalRecipients();
+                });
+            }
+
+            if (selectNoneBtn) {
+                selectNoneBtn.addEventListener('click', function() {
+                    checkboxes.forEach(checkbox => checkbox.checked = false);
+                    updateTotalRecipients();
+                });
+            }
+
+            updateTotalRecipients();
+        });
+    </script>
+}

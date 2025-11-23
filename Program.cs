@@ -16,6 +16,9 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("SimplestTwilioContext")));
 
+        // Add Twilio service
+        builder.Services.AddScoped<SimplestTwilio.Services.ITwilioService, SimplestTwilio.Services.TwilioService>();
+
         var app = builder.Build();
 
         // Apply pending migrations

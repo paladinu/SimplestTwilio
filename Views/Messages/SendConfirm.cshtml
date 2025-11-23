@@ -1,0 +1,95 @@
+@model SimplestTwilio.Models.SendMessageViewModel
+@{
+    ViewData["Title"] = "Confirm Send";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Confirm Send</h1>
+
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Please Review:</strong> You are about to send SMS messages. This action cannot be undone.
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Message Preview</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@Model.MessageText</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Send Summary</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Selected Lists:</dt>
+                        <dd class="col-sm-8">
+                            <ul class="mb-0">
+                                @foreach (var list in Model.AvailableLists)
+                                {
+                                    <li>@list.Name (@list.ContactCount contacts)</li>
+                                }
+                            </ul>
+                        </dd>
+
+                        <dt class="col-sm-4">Total Recipients:</dt>
+                        <dd class="col-sm-8"><strong>@Model.TotalRecipients</strong></dd>
+
+                        <dt class="col-sm-4">SMS Segments per Message:</dt>
+                        <dd class="col-sm-8"><strong>@Model.SmsSegments</strong></dd>
+
+                        <dt class="col-sm-4">Total SMS Count:</dt>
+                        <dd class="col-sm-8">
+                            <strong class="text-primary">@Model.TotalSmsCount</strong>
+                            <small class="text-muted">(Recipients × Segments)</small>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <strong>Cost Estimate:</strong> Each SMS segment typically costs between $0.0075 - $0.01 depending on your Twilio plan.
+                Estimated cost: $@((Model.TotalSmsCount * 0.0075).ToString("F2")) - $@((Model.TotalSmsCount * 0.01).ToString("F2"))
+            </div>
+
+            <form asp-action="SendExecute" method="post">
+                <input type="hidden" asp-for="MessageId" />
+                <input type="hidden" asp-for="MessageText" />
+                @for (int i = 0; i < Model.SelectedListIds.Count; i++)
+                {
+                    <input type="hidden" name="SelectedListIds[@i]" value="@Model.SelectedListIds[i]" />
+                }
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-success" id="confirmSendBtn">
+                        <i class="bi bi-send"></i> Confirm and Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmBtn = document.getElementById('confirmSendBtn');
+            const form = confirmBtn.closest('form');
+
+            form.addEventListener('submit', function() {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...';
+            });
+        });
+    </script>
+}
