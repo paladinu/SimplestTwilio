@@ -7,6 +7,7 @@
     <UserSecretsId>23a3c996-608b-4a91-b717-61d7a73d4edf</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <DefaultItemExcludes>$(DefaultItemExcludes);SimplestTwilio.Tests/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

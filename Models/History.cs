@@ -6,8 +6,7 @@ public class History
 {
     public int HistoryId { get; set; }
 
-    [Required]
-    public int MessageId { get; set; }
+    public int? MessageId { get; set; }
 
     [Required]
     public int RecipientListId { get; set; }
